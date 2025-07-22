@@ -6,49 +6,151 @@
   </head>
   <body>
     <script type="module" src="./app.js"></script>
-    <h1>Algorithm Visualizer</h1>
-    <div>
-      <label for="input">Array (comma-separated):</label>
-      <input id="input" placeholder="e.g., 5,3,8,1" />
-      <button id="runButton">Bubble Sort</button>
+    <div class="container">
+      <h1>Algorithm Visualizer</h1>
+
+      <div class="main-content">
+        <div class="controls-panel">
+          <div class="algorithm-group">
+            <h3>🔄 Sorting Algorithms</h3>
+            <div class="input-group">
+              <label for="input">Array:</label>
+              <input id="input" placeholder="e.g., 5,3,8,1" />
+            </div>
+            <div class="button-group">
+              <button id="runButton" class="algorithm-btn">Bubble Sort</button>
+              <button id="selectionSortButton" class="algorithm-btn">
+                Selection Sort
+              </button>
+              <button id="insertionSortButton" class="algorithm-btn">
+                Insertion Sort
+              </button>
+            </div>
+          </div>
+
+          <div class="algorithm-group">
+            <h3>🔍 Search Algorithm</h3>
+            <div class="input-group">
+              <label for="target">Target:</label>
+              <input id="target" type="number" placeholder="e.g., 5" />
+            </div>
+            <div class="button-group">
+              <button id="binarySearchButton" class="algorithm-btn">
+                Binary Search
+              </button>
+            </div>
+          </div>
+
+          <div class="algorithm-group">
+            <h3>🌳 Tree Traversal</h3>
+            <div class="input-group">
+              <label for="bfsTarget">BFS Target:</label>
+              <input id="bfsTarget" type="number" placeholder="optional" />
+            </div>
+            <div class="button-group">
+              <button id="bfsButton" class="algorithm-btn">BFS</button>
+            </div>
+            <div class="input-group">
+              <label for="dfsTarget">DFS Target:</label>
+              <input id="dfsTarget" type="number" placeholder="optional" />
+            </div>
+            <div class="input-group">
+              <label for="dfsOrder">DFS Order:</label>
+              <select id="dfsOrder">
+                <option value="preorder">Pre-order</option>
+                <option value="inorder">In-order</option>
+                <option value="postorder">Post-order</option>
+              </select>
+            </div>
+            <div class="button-group">
+              <button id="dfsButton" class="algorithm-btn">DFS</button>
+            </div>
+          </div>
+
+          <!-- Dynamic Color Guides (initially hidden) -->
+          <div
+            id="sortingGuide"
+            class="color-guide-section"
+            style="display: none"
+          >
+            <h4>🎨 Color Guide</h4>
+            <ul class="color-guide">
+              <li>
+                <span class="color-box gray"></span
+                ><strong>Gray:</strong> Current position
+              </li>
+              <li>
+                <span class="color-box orange"></span
+                ><strong>Orange:</strong> Comparing
+              </li>
+              <li>
+                <span class="color-box yellow"></span
+                ><strong>Yellow:</strong> New minimum
+              </li>
+              <li>
+                <span class="color-box green"></span
+                ><strong>Green:</strong> Sorted
+              </li>
+            </ul>
+          </div>
+
+          <div
+            id="searchGuide"
+            class="color-guide-section"
+            style="display: none"
+          >
+            <h4>🎨 Color Guide</h4>
+            <ul class="color-guide">
+              <li>
+                <span class="color-box light-blue"></span
+                ><strong>Blue:</strong> Search range
+              </li>
+              <li>
+                <span class="color-box orange"></span
+                ><strong>Orange:</strong> Comparing
+              </li>
+              <li>
+                <span class="color-box green"></span
+                ><strong>Green:</strong> Found
+              </li>
+            </ul>
+          </div>
+
+          <div
+            id="traversalGuide"
+            class="color-guide-section"
+            style="display: none"
+          >
+            <h4>🎨 Color Guide</h4>
+            <ul class="color-guide">
+              <li>
+                <span class="color-box orange"></span
+                ><strong>Orange:</strong> Visiting
+              </li>
+              <li>
+                <span class="color-box light-blue"></span
+                ><strong>Blue:</strong> Queue (BFS)
+              </li>
+              <li>
+                <span class="color-box purple"></span
+                ><strong>Purple:</strong> Stack (DFS)
+              </li>
+              <li>
+                <span class="color-box red"></span
+                ><strong>Red:</strong> Backtrack
+              </li>
+              <li>
+                <span class="color-box green"></span
+                ><strong>Green:</strong> Found
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="visualization-panel">
+          <div id="visualizer"></div>
+        </div>
+      </div>
     </div>
-    <div>
-      <label for="target">Search target:</label>
-      <input id="target" type="number" placeholder="e.g., 5" />
-      <button id="binarySearchButton">Binary Search</button>
-    </div>
-    <div>
-      <label for="bfsTarget">BFS target (optional):</label>
-      <input id="bfsTarget" type="number" placeholder="e.g., 8" />
-      <button id="bfsButton">BFS Traversal</button>
-    </div>
-    <div>
-      <label for="dfsTarget">DFS target (optional):</label>
-      <input id="dfsTarget" type="number" placeholder="e.g., 7" />
-      <select id="dfsOrder">
-        <option value="preorder">Pre-order</option>
-        <option value="inorder">In-order</option>
-        <option value="postorder">Post-order</option>
-      </select>
-      <button id="dfsButton">DFS Traversal</button>
-    </div>
-    <div class="info">
-      <p><strong>Instructions:</strong></p>
-      <ul>
-        <li>
-          <strong>Bubble Sort:</strong> Enter numbers to sort (e.g., 5,3,8,1)
-        </li>
-        <li><strong>Binary Search:</strong> Searches in a sorted array</li>
-        <li>
-          <strong>BFS:</strong> Tree traversal (e.g., 1,2,3,4,5,6,7 creates a
-          binary tree)
-        </li>
-        <li>
-          <strong>DFS:</strong> Tree traversal with different orders
-          (Pre/In/Post-order)
-        </li>
-      </ul>
-    </div>
-    <div id="visualizer"></div>
   </body>
 </html>
