@@ -185,6 +185,129 @@ async function runInsertionSort() {
   drawBars(currentArray, [], 'complete'); // Show final sorted array
 }
 
+// Universal sorting function that handles dropdown selection
+async function runUniversalSort() {
+  showColorGuide('sorting');
+  const inputElement = document.getElementById('input');
+  const algorithmElement = document.getElementById('sortingAlgorithm');
+
+  if (!inputElement || !algorithmElement) {
+    alert('Required elements not found');
+    return;
+  }
+
+  const input = inputElement.value;
+  const algorithm = algorithmElement.value;
+  const array = input.split(',').map(Number);
+
+  let gen;
+  switch (algorithm) {
+    case 'bubble':
+      gen = bubbleSort(array);
+      break;
+    case 'selection':
+      gen = selectionSort(array);
+      break;
+    case 'insertion':
+      gen = insertionSort(array);
+      break;
+    default:
+      alert('Unknown sorting algorithm selected');
+      return;
+  }
+
+  let step = gen.next();
+  let currentArray = [...array];
+
+  while (!step.done) {
+    const { type, indices, array: arrSnapshot, minIndex } = step.value;
+
+    // Handle different types of steps based on algorithm
+    if (type === 'compare') {
+      drawBars(currentArray, indices, 'active');
+    } else if (type === 'swap') {
+      currentArray = [...arrSnapshot];
+      drawBars(currentArray, indices, 'active');
+    } else if (type === 'sorting') {
+      drawBars(currentArray, indices, 'sorting');
+    } else if (type === 'newMin') {
+      drawBars(currentArray, indices, 'newMin');
+    } else if (type === 'sorted') {
+      drawBars(currentArray, indices, 'sorted');
+    } else if (type === 'current') {
+      drawBars(currentArray, indices, 'active');
+    } else if (type === 'shift') {
+      currentArray = [...arrSnapshot];
+      drawBars(currentArray, indices, 'newMin');
+    } else if (type === 'insert') {
+      currentArray = [...arrSnapshot];
+      drawBars(currentArray, indices, 'active');
+    }
+
+    await new Promise(r => setTimeout(r, algorithm === 'insertion' ? 600 : algorithm === 'selection' ? 400 : 300));
+    step = gen.next();
+  }
+  drawBars(currentArray, [], 'complete');
+}
+
+// Universal search function that handles dropdown selection
+async function runUniversalSearch() {
+  showColorGuide('search');
+  const inputElement = document.getElementById('input');
+  const targetElement = document.getElementById('target');
+  const algorithmElement = document.getElementById('searchAlgorithm');
+
+  if (!inputElement || !targetElement || !algorithmElement) {
+    alert('Required elements not found');
+    return;
+  }
+
+  const input = inputElement.value;
+  const target = parseInt(targetElement.value);
+  const algorithm = algorithmElement.value;
+  let array = input.split(',').map(Number);
+
+  let gen;
+  switch (algorithm) {
+    case 'binary':
+      // Sort the array first for binary search
+      array.sort((a, b) => a - b);
+      drawBars(array); // Show sorted array
+      await new Promise(r => setTimeout(r, 1000));
+      gen = binarySearch(array, target);
+      break;
+    default:
+      alert('Unknown search algorithm selected');
+      return;
+  }
+
+  let step = gen.next();
+
+  while (!step.done) {
+    const { type, indices, target: searchTarget } = step.value;
+
+    if (type === 'range' && indices) {
+      const rangeIndices = [];
+      for (let i = indices[0]; i <= indices[1]; i++) {
+        rangeIndices.push(i);
+      }
+      drawBars(array, rangeIndices, 'range');
+    } else if (type === 'compare' && indices) {
+      drawBars(array, indices, 'active');
+    } else if (type === 'found' && indices) {
+      drawBars(array, indices, 'found');
+      break;
+    } else if (type === 'not-found') {
+      drawBars(array);
+      alert(`Target ${searchTarget} not found in the array!`);
+      break;
+    }
+
+    await new Promise(r => setTimeout(r, 800));
+    step = gen.next();
+  }
+}
+
 async function runBinarySearch() {
   showColorGuide('search'); // Show search color guide
   const inputElement = document.getElementById('input');
@@ -354,33 +477,25 @@ async function runDFS() {
 window.runSort = runSort;
 window.runSelectionSort = runSelectionSort;
 window.runInsertionSort = runInsertionSort;
+window.runUniversalSort = runUniversalSort;
+window.runUniversalSearch = runUniversalSearch;
 window.runBinarySearch = runBinarySearch;
 window.runBFS = runBFS;
 window.runDFS = runDFS;
 
 document.addEventListener('DOMContentLoaded', () => {
   // Ensure the DOM is fully loaded before running the script
-  const runButton = document.getElementById('runButton');
-  const selectionSortButton = document.getElementById('selectionSortButton');
-  const insertionSortButton = document.getElementById('insertionSortButton');
-  const binarySearchButton = document.getElementById('binarySearchButton');
+  const runSortButton = document.getElementById('runSortButton');
+  const runSearchButton = document.getElementById('runSearchButton');
   const bfsButton = document.getElementById('bfsButton');
   const dfsButton = document.getElementById('dfsButton');
 
-  if (runButton) {
-    runButton.addEventListener('click', runSort);
+  if (runSortButton) {
+    runSortButton.addEventListener('click', runUniversalSort);
   }
 
-  if (selectionSortButton) {
-    selectionSortButton.addEventListener('click', runSelectionSort);
-  }
-
-  if (insertionSortButton) {
-    insertionSortButton.addEventListener('click', runInsertionSort);
-  }
-
-  if (binarySearchButton) {
-    binarySearchButton.addEventListener('click', runBinarySearch);
+  if (runSearchButton) {
+    runSearchButton.addEventListener('click', runUniversalSearch);
   }
 
   if (bfsButton) {

@@ -17,14 +17,16 @@
               <label for="input">Array:</label>
               <input id="input" placeholder="e.g., 5,3,8,1" />
             </div>
+            <div class="input-group">
+              <label for="sortingAlgorithm">Algorithm:</label>
+              <select id="sortingAlgorithm">
+                <option value="bubble">Bubble Sort</option>
+                <option value="selection">Selection Sort</option>
+                <option value="insertion">Insertion Sort</option>
+              </select>
+            </div>
             <div class="button-group">
-              <button id="runButton" class="algorithm-btn">Bubble Sort</button>
-              <button id="selectionSortButton" class="algorithm-btn">
-                Selection Sort
-              </button>
-              <button id="insertionSortButton" class="algorithm-btn">
-                Insertion Sort
-              </button>
+              <button id="runSortButton" class="algorithm-btn">Run Sort</button>
             </div>
           </div>
 
@@ -34,9 +36,15 @@
               <label for="target">Target:</label>
               <input id="target" type="number" placeholder="e.g., 5" />
             </div>
+            <div class="input-group">
+              <label for="searchAlgorithm">Algorithm:</label>
+              <select id="searchAlgorithm">
+                <option value="binary">Binary Search</option>
+              </select>
+            </div>
             <div class="button-group">
-              <button id="binarySearchButton" class="algorithm-btn">
-                Binary Search
+              <button id="runSearchButton" class="algorithm-btn">
+                Run Search
               </button>
             </div>
           </div>
