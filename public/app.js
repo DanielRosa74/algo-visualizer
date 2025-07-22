@@ -28,7 +28,7 @@ async function runSort() {
     await new Promise(r => setTimeout(r, 300));
     step = gen.next();
   }
-  drawBars(array);
+  drawBars(step.value.array);
 }
 
 window.runSort = runSort;
