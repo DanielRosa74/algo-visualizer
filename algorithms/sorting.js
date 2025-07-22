@@ -63,6 +63,48 @@ export function* selectionSort(arr) {
 }
 
 /**
+ * Insertion Sort generator.
+ * Yields objects of the form:
+ *   { type: 'current', indices: [current] } - Current element being inserted
+ *   { type: 'compare', indices: [j, j+1] } - Comparing elements
+ *   { type: 'shift', indices: [j], array: [current array state] } - Shifting element right
+ *   { type: 'insert', indices: [position], array: [current array state] } - Inserting element
+ *   { type: 'sorted', indices: [0, i] } - Elements 0 to i are sorted
+ * @param {number[]} arr - Array to sort
+ * @yields {{type: string, indices: number[], array?: number[]}}
+ */
+export function* insertionSort(arr) {
+  const steps = [...arr];
+
+  for (let i = 1; i < steps.length; i++) {
+    const current = steps[i];
+    let j = i - 1;
+
+    // Highlight the current element being inserted
+    yield { type: 'current', indices: [i] };
+
+    // Move elements greater than current one position ahead
+    while (j >= 0 && steps[j] > current) {
+      // Show comparison
+      yield { type: 'compare', indices: [j, j + 1] };
+
+      // Shift element to the right
+      steps[j + 1] = steps[j];
+      yield { type: 'shift', indices: [j + 1], array: [...steps] };
+
+      j--;
+    }
+
+    // Insert the current element at its correct position
+    steps[j + 1] = current;
+    yield { type: 'insert', indices: [j + 1], array: [...steps] };
+
+    // Show that elements from 0 to i are now sorted
+    yield { type: 'sorted', indices: Array.from({ length: i + 1 }, (_, k) => k) };
+  }
+}
+
+/**
  * Binary Search generator.
  * Requires a sorted array to work properly.
  * Yields objects of the form:

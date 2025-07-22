@@ -1,4 +1,4 @@
-import { bubbleSort, selectionSort, binarySearch, breadthFirstSearch, depthFirstSearch } from '../algorithms/sorting.js';
+import { bubbleSort, selectionSort, insertionSort, binarySearch, breadthFirstSearch, depthFirstSearch } from '../algorithms/sorting.js';
 
 /**
  * Shows the appropriate color guide for the given algorithm type
@@ -144,6 +144,42 @@ async function runSelectionSort() {
     }
 
     await new Promise(r => setTimeout(r, 400)); // Slightly slower for better visualization
+    step = gen.next();
+  }
+  drawBars(currentArray, [], 'complete'); // Show final sorted array
+}
+
+async function runInsertionSort() {
+  showColorGuide('sorting'); // Show sorting color guide
+  const input = document.getElementById('input').value;
+  const array = input.split(',').map(Number);
+  const gen = insertionSort(array);
+  let step = gen.next();
+  let currentArray = [...array]; // Keep track of the current array state
+
+  while (!step.done) {
+    const { type, indices, array: arrSnapshot } = step.value;
+
+    if (type === 'current') {
+      // Highlight the current element being inserted
+      drawBars(currentArray, indices, 'active');
+    } else if (type === 'compare') {
+      // Highlight elements being compared
+      drawBars(currentArray, indices, 'active');
+    } else if (type === 'shift') {
+      // Update array after shift and highlight the shifted element
+      currentArray = [...arrSnapshot];
+      drawBars(currentArray, indices, 'newMin'); // Use yellow to show shifted element
+    } else if (type === 'insert') {
+      // Update array after insertion and highlight the inserted position
+      currentArray = [...arrSnapshot];
+      drawBars(currentArray, indices, 'active');
+    } else if (type === 'sorted') {
+      // Highlight the sorted portion
+      drawBars(currentArray, indices, 'sorted');
+    }
+
+    await new Promise(r => setTimeout(r, 600)); // Slightly slower to show the insertion process clearly
     step = gen.next();
   }
   drawBars(currentArray, [], 'complete'); // Show final sorted array
@@ -317,6 +353,7 @@ async function runDFS() {
 // Make functions available globally - bypass TypeScript by casting to any
 window.runSort = runSort;
 window.runSelectionSort = runSelectionSort;
+window.runInsertionSort = runInsertionSort;
 window.runBinarySearch = runBinarySearch;
 window.runBFS = runBFS;
 window.runDFS = runDFS;
@@ -325,6 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Ensure the DOM is fully loaded before running the script
   const runButton = document.getElementById('runButton');
   const selectionSortButton = document.getElementById('selectionSortButton');
+  const insertionSortButton = document.getElementById('insertionSortButton');
   const binarySearchButton = document.getElementById('binarySearchButton');
   const bfsButton = document.getElementById('bfsButton');
   const dfsButton = document.getElementById('dfsButton');
@@ -335,6 +373,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (selectionSortButton) {
     selectionSortButton.addEventListener('click', runSelectionSort);
+  }
+
+  if (insertionSortButton) {
+    insertionSortButton.addEventListener('click', runInsertionSort);
   }
 
   if (binarySearchButton) {
