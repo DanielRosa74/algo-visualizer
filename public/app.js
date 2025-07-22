@@ -1,8 +1,14 @@
 import { bubbleSort } from '../algorithms/sorting.js';
 
+/**
+ * Draws bars for the given data array.
+ * @param {number[]} data - Array of numbers to visualize.
+ * @param {number[]} [highlight=[]] - Indices to highlight.
+ */
 function drawBars(data, highlight = []) {
   const container = document.getElementById('visualizer');
   container.innerHTML = '';
+  if (!Array.isArray(data)) return; // Prevent TypeError if data is undefined
   data.forEach((value, i) => {
     const bar = document.createElement('div');
     bar.className = 'bar';
@@ -18,17 +24,22 @@ async function runSort() {
   const array = input.split(',').map(Number);
   const gen = bubbleSort(array);
   let step = gen.next();
+  let currentArray = [...array]; // Keep track of the current array state
 
   while (!step.done) {
     const { type, indices, array: arrSnapshot } = step.value;
 
-    if (type === 'compare') drawBars(array, indices);
-    else if (type === 'swap') drawBars(arrSnapshot, indices);
+    if (type === 'compare') {
+      drawBars(currentArray, indices);
+    } else if (type === 'swap') {
+      currentArray = [...arrSnapshot]; // Update our tracked array
+      drawBars(currentArray, indices);
+    }
 
     await new Promise(r => setTimeout(r, 300));
     step = gen.next();
   }
-  drawBars(step.value.array);
+  drawBars(currentArray); // Use the final state we've been tracking
 }
 
 window.runSort = runSort;

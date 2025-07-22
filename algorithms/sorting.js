@@ -1,3 +1,11 @@
+/**
+ * Bubble Sort generator.
+ * Yields objects of the form:
+ *   { type: 'compare', indices: [i, j] }
+ *   { type: 'swap', indices: [i, j], array: [current array state] }
+ * @param {number[]} arr - Array to sort
+ * @yields {{type: string, indices: number[], array?: number[]}}
+ */
 export function* bubbleSort(arr) {
   const steps = [...arr];
   for (let i = 0; i < steps.length; i++) {
