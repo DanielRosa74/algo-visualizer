@@ -1,4 +1,4 @@
-import { bubbleSort, binarySearch, breadthFirstSearch } from '../algorithms/sorting.js';
+import { bubbleSort, binarySearch, breadthFirstSearch, depthFirstSearch } from '../algorithms/sorting.js';
 
 /**
  * Draws bars for the given data array.
@@ -186,15 +186,66 @@ async function runBFS() {
   }
 }
 
+async function runDFS() {
+  const input = document.getElementById('input').value;
+  const target = document.getElementById('dfsTarget').value;
+  const order = document.getElementById('dfsOrder').value || 'preorder';
+  let array = input.split(',').map(Number);
+
+  // Show initial tree
+  drawTree(array);
+
+  await new Promise(r => setTimeout(r, 1000)); // Pause before starting DFS
+
+  const targetNum = target ? parseInt(target) : undefined;
+  const gen = depthFirstSearch(array, targetNum, order);
+  let step = gen.next();
+
+  while (!step.done) {
+    const { type, index, indices, value, level, traversal, found } = step.value;
+
+    if (type === 'stack') {
+      // Highlight nodes currently in stack (path from root to current)
+      drawTree(array, indices, 'stack');
+    } else if (type === 'visit') {
+      // Highlight currently visiting node
+      drawTree(array, [index], 'active');
+    } else if (type === 'found') {
+      // Highlight found target
+      drawTree(array, [index], 'found');
+      alert(`Found target ${value} at position ${index} using ${order} DFS!`);
+      break;
+    } else if (type === 'backtrack') {
+      // Show backtracking with a different color
+      drawTree(array, [index], 'backtrack');
+    } else if (type === 'complete') {
+      // Show completion
+      drawTree(array);
+      const traversalText = `DFS (${order}) Traversal: ${traversal.join(' → ')}`;
+      if (targetNum !== undefined && !found) {
+        alert(`${traversalText}\nTarget ${targetNum} not found in tree!`);
+      } else if (targetNum === undefined) {
+        alert(`${traversalText}\nDFS traversal complete!`);
+      }
+      break;
+    }
+
+    await new Promise(r => setTimeout(r, 1200)); // Slightly slower for DFS to show backtracking
+    step = gen.next();
+  }
+}
+
 window.runSort = runSort;
 window.runBinarySearch = runBinarySearch;
 window.runBFS = runBFS;
+window.runDFS = runDFS;
 
 document.addEventListener('DOMContentLoaded', () => {
   // Ensure the DOM is fully loaded before running the script
   const runButton = document.getElementById('runButton');
   const binarySearchButton = document.getElementById('binarySearchButton');
   const bfsButton = document.getElementById('bfsButton');
+  const dfsButton = document.getElementById('dfsButton');
 
   if (runButton) {
     runButton.addEventListener('click', runSort);
@@ -206,5 +257,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (bfsButton) {
     bfsButton.addEventListener('click', runBFS);
+  }
+
+  if (dfsButton) {
+    dfsButton.addEventListener('click', runDFS);
   }
 });

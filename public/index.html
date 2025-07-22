@@ -22,6 +22,16 @@
       <input id="bfsTarget" type="number" placeholder="e.g., 8" />
       <button id="bfsButton">BFS Traversal</button>
     </div>
+    <div>
+      <label for="dfsTarget">DFS target (optional):</label>
+      <input id="dfsTarget" type="number" placeholder="e.g., 7" />
+      <select id="dfsOrder">
+        <option value="preorder">Pre-order</option>
+        <option value="inorder">In-order</option>
+        <option value="postorder">Post-order</option>
+      </select>
+      <button id="dfsButton">DFS Traversal</button>
+    </div>
     <div class="info">
       <p><strong>Instructions:</strong></p>
       <ul>
@@ -32,6 +42,10 @@
         <li>
           <strong>BFS:</strong> Tree traversal (e.g., 1,2,3,4,5,6,7 creates a
           binary tree)
+        </li>
+        <li>
+          <strong>DFS:</strong> Tree traversal with different orders
+          (Pre/In/Post-order)
         </li>
       </ul>
     </div>

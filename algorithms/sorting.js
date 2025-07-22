@@ -158,3 +158,97 @@ export function* breadthFirstSearch(arr, target = null) {
   // Show final traversal
   yield { type: 'complete', traversal, found: target !== null ? found : undefined };
 }
+
+/**
+ * Depth-First Search generator for binary tree.
+ * Yields objects of the form:
+ *   { type: 'visit', index: number, value: number, level: number }
+ *   { type: 'stack', indices: number[] } (current stack state)
+ *   { type: 'found', index: number, value: number } (if searching for target)
+ *   { type: 'backtrack', index: number } (when backtracking)
+ *   { type: 'complete', traversal: number[] } (final traversal order)
+ * @param {number[]} arr - Array representing tree in level-order
+ * @param {number} [target] - Optional target value to search for
+ * @param {'preorder'|'inorder'|'postorder'} [order='preorder'] - DFS traversal order
+ * @yields {{type: string, index?: number, indices?: number[], value?: number, level?: number, traversal?: number[], found?: boolean}}
+ */
+export function* depthFirstSearch(arr, target = undefined, order = 'preorder') {
+  if (!arr || arr.length === 0) return;
+
+  const root = createBinaryTree(arr);
+  if (!root) return;
+
+  const traversal = [];
+  let found = false;
+
+  function* dfsHelper(node, level, stack) {
+    if (!node) return;
+
+    // Show current stack state
+    const stackIndices = stack.map(n => n.index);
+    yield { type: 'stack', indices: stackIndices };
+
+    // Add current node to stack for visualization
+    stack.push(node);
+
+    // Preorder: Visit node before children
+    if (order === 'preorder') {
+      yield { type: 'visit', index: node.index, value: node.value, level };
+      traversal.push(node.value);
+
+      // Check if this is the target
+      if (target !== undefined && node.value === target) {
+        yield { type: 'found', index: node.index, value: node.value };
+        found = true;
+        return;
+      }
+    }
+
+    // Recursively visit left subtree
+    if (node.left) {
+      yield* dfsHelper(node.left, level + 1, [...stack]);
+      if (found && target !== undefined) return;
+    }
+
+    // Inorder: Visit node between children
+    if (order === 'inorder') {
+      yield { type: 'visit', index: node.index, value: node.value, level };
+      traversal.push(node.value);
+
+      // Check if this is the target
+      if (target !== undefined && node.value === target) {
+        yield { type: 'found', index: node.index, value: node.value };
+        found = true;
+        return;
+      }
+    }
+
+    // Recursively visit right subtree
+    if (node.right) {
+      yield* dfsHelper(node.right, level + 1, [...stack]);
+      if (found && target !== undefined) return;
+    }
+
+    // Postorder: Visit node after children
+    if (order === 'postorder') {
+      yield { type: 'visit', index: node.index, value: node.value, level };
+      traversal.push(node.value);
+
+      // Check if this is the target
+      if (target !== undefined && node.value === target) {
+        yield { type: 'found', index: node.index, value: node.value };
+        found = true;
+        return;
+      }
+    }
+
+    // Show backtracking
+    yield { type: 'backtrack', index: node.index };
+  }
+
+  // Start DFS
+  yield* dfsHelper(root, 0, []);
+
+  // Show final traversal
+  yield { type: 'complete', traversal, found: target !== undefined ? found : undefined };
+}
