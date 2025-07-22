@@ -1,14 +1,54 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Algorithm Visualizer</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-  <script type="module" src="./app.js"></script>
-  <h1>Bubble Sort Visualizer</h1>
-  <input id="input" placeholder="e.g., 5,3,8,1">
-  <button id="runButton">Run</button>
-  <div id="visualizer"></div>
-</body>
+  <head>
+    <title>Algorithm Visualizer</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <script type="module" src="./app.js"></script>
+    <h1>Algorithm Visualizer</h1>
+    <div>
+      <label for="input">Array (comma-separated):</label>
+      <input id="input" placeholder="e.g., 5,3,8,1" />
+      <button id="runButton">Bubble Sort</button>
+    </div>
+    <div>
+      <label for="target">Search target:</label>
+      <input id="target" type="number" placeholder="e.g., 5" />
+      <button id="binarySearchButton">Binary Search</button>
+    </div>
+    <div>
+      <label for="bfsTarget">BFS target (optional):</label>
+      <input id="bfsTarget" type="number" placeholder="e.g., 8" />
+      <button id="bfsButton">BFS Traversal</button>
+    </div>
+    <div>
+      <label for="dfsTarget">DFS target (optional):</label>
+      <input id="dfsTarget" type="number" placeholder="e.g., 7" />
+      <select id="dfsOrder">
+        <option value="preorder">Pre-order</option>
+        <option value="inorder">In-order</option>
+        <option value="postorder">Post-order</option>
+      </select>
+      <button id="dfsButton">DFS Traversal</button>
+    </div>
+    <div class="info">
+      <p><strong>Instructions:</strong></p>
+      <ul>
+        <li>
+          <strong>Bubble Sort:</strong> Enter numbers to sort (e.g., 5,3,8,1)
+        </li>
+        <li><strong>Binary Search:</strong> Searches in a sorted array</li>
+        <li>
+          <strong>BFS:</strong> Tree traversal (e.g., 1,2,3,4,5,6,7 creates a
+          binary tree)
+        </li>
+        <li>
+          <strong>DFS:</strong> Tree traversal with different orders
+          (Pre/In/Post-order)
+        </li>
+      </ul>
+    </div>
+    <div id="visualizer"></div>
+  </body>
 </html>
