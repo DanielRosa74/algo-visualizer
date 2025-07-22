@@ -1,0 +1,16 @@
+#visualizer {
+  display: flex;
+  align-items: flex-end;
+  height: 200px;
+  margin-top: 20px;
+}
+.bar {
+  width: 20px;
+  margin: 0 2px;
+  background: #006400;
+  text-align: center;
+  color: white;
+}
+.bar.active {
+  background: #ff9c2a;
+}

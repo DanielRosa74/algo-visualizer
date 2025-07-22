@@ -1,0 +1,54 @@
+# Node.js specific
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Logs
+logs/
+*.log
+
+# Dependency directories
+jspm_packages/
+
+# Build directories
+build/
+dist/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Miscellaneous
+*.bak
+*.tmp
+*.temp
+*.swp
+*.swo
+*.orig
+*.rej
+*.patch
+*.diff
+*.sublime-workspace
+*.sublime-project
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage
+coverage/
+
+# Temporary files
+*.tmp
+*.temp
+~$*
