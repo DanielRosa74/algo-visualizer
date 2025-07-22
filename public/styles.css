@@ -1,16 +1,68 @@
+body {
+  font-family: Arial, sans-serif;
+  margin: 20px;
+}
+
+div {
+  margin: 10px 0;
+}
+
+input {
+  margin: 0 10px;
+  padding: 5px;
+}
+
+button {
+  padding: 8px 15px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 0 5px;
+}
+
+button:hover {
+  background-color: #0056b3;
+}
+
 #visualizer {
   display: flex;
   align-items: flex-end;
   height: 200px;
   margin-top: 20px;
 }
+
 .bar {
   width: 20px;
   margin: 0 2px;
   background: #006400;
   text-align: center;
   color: white;
+  border-radius: 4px 4px 0 0;
 }
+
 .bar.active {
   background: #ff9c2a;
+}
+
+.bar.found {
+  background: #28a745;
+  animation: pulse 0.5s ease-in-out;
+}
+
+.bar.range {
+  background: #17a2b8;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
