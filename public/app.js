@@ -1,4 +1,20 @@
-import { bubbleSort, binarySearch, breadthFirstSearch, depthFirstSearch } from '../algorithms/sorting.js';
+import { bubbleSort, selectionSort, binarySearch, breadthFirstSearch, depthFirstSearch } from '../algorithms/sorting.js';
+
+/**
+ * Shows the appropriate color guide for the given algorithm type
+ */
+function showColorGuide(algorithmType) {
+  // Hide all color guides first
+  document.getElementById('sortingGuide').style.display = 'none';
+  document.getElementById('searchGuide').style.display = 'none';
+  document.getElementById('traversalGuide').style.display = 'none';
+
+  // Show the relevant guide
+  const guideElement = document.getElementById(algorithmType + 'Guide');
+  if (guideElement) {
+    guideElement.style.display = 'block';
+  }
+}
 
 /**
  * Draws bars for the given data array.
@@ -76,6 +92,7 @@ function drawTree(data, highlight = [], highlightType = 'active') {
 }
 
 async function runSort() {
+  showColorGuide('sorting'); // Show sorting color guide
   const input = document.getElementById('input').value;
   const array = input.split(',').map(Number);
   const gen = bubbleSort(array);
@@ -98,9 +115,52 @@ async function runSort() {
   drawBars(currentArray); // Use the final state we've been tracking
 }
 
-async function runBinarySearch() {
+async function runSelectionSort() {
+  showColorGuide('sorting'); // Show sorting color guide
   const input = document.getElementById('input').value;
-  const target = parseInt(document.getElementById('target').value);
+  const array = input.split(',').map(Number);
+  const gen = selectionSort(array);
+  let step = gen.next();
+  let currentArray = [...array]; // Keep track of the current array state
+
+  while (!step.done) {
+    const { type, indices, array: arrSnapshot, minIndex } = step.value;
+
+    if (type === 'sorting') {
+      // Highlight the position currently being sorted
+      drawBars(currentArray, indices, 'sorting');
+    } else if (type === 'compare') {
+      // Highlight elements being compared
+      drawBars(currentArray, indices, 'active');
+    } else if (type === 'newMin') {
+      // Highlight new minimum found
+      drawBars(currentArray, indices, 'newMin');
+    } else if (type === 'swap') {
+      currentArray = [...arrSnapshot]; // Update our tracked array
+      drawBars(currentArray, indices, 'active');
+    } else if (type === 'sorted') {
+      // Highlight sorted position
+      drawBars(currentArray, indices, 'sorted');
+    }
+
+    await new Promise(r => setTimeout(r, 400)); // Slightly slower for better visualization
+    step = gen.next();
+  }
+  drawBars(currentArray, [], 'complete'); // Show final sorted array
+}
+
+async function runBinarySearch() {
+  showColorGuide('search'); // Show search color guide
+  const inputElement = document.getElementById('input');
+  const targetElement = document.getElementById('target');
+
+  if (!inputElement || !targetElement) {
+    alert('Required elements not found');
+    return;
+  }
+
+  const input = (inputElement).value;
+  const target = parseInt((targetElement).value);
   let array = input.split(',').map(Number);
 
   // Sort the array first for binary search
@@ -115,17 +175,17 @@ async function runBinarySearch() {
   while (!step.done) {
     const { type, indices, target: searchTarget } = step.value;
 
-    if (type === 'range') {
+    if (type === 'range' && indices) {
       // Highlight the current search range
       const rangeIndices = [];
       for (let i = indices[0]; i <= indices[1]; i++) {
         rangeIndices.push(i);
       }
       drawBars(array, rangeIndices, 'range');
-    } else if (type === 'compare') {
+    } else if (type === 'compare' && indices) {
       // Highlight the middle element being compared
       drawBars(array, indices, 'active');
-    } else if (type === 'found') {
+    } else if (type === 'found' && indices) {
       // Highlight the found element in green
       drawBars(array, indices, 'found');
       break;
@@ -142,8 +202,17 @@ async function runBinarySearch() {
 }
 
 async function runBFS() {
-  const input = document.getElementById('input').value;
-  const target = document.getElementById('bfsTarget').value;
+  showColorGuide('traversal'); // Show traversal color guide
+  const inputElement = document.getElementById('input');
+  const targetElement = document.getElementById('bfsTarget');
+
+  if (!inputElement || !targetElement) {
+    alert('Required elements not found');
+    return;
+  }
+
+  const input = (inputElement).value;
+  const target = (targetElement).value;
   let array = input.split(',').map(Number);
 
   // Show initial tree
@@ -151,20 +220,20 @@ async function runBFS() {
 
   await new Promise(r => setTimeout(r, 1000)); // Pause before starting BFS
 
-  const targetNum = target ? parseInt(target) : null;
+  const targetNum = target ? parseInt(target) : undefined;
   const gen = breadthFirstSearch(array, targetNum);
   let step = gen.next();
 
   while (!step.done) {
     const { type, index, indices, value, level, traversal, found } = step.value;
 
-    if (type === 'queue') {
+    if (type === 'queue' && indices) {
       // Highlight nodes currently in queue
       drawTree(array, indices, 'queue');
-    } else if (type === 'visit') {
+    } else if (type === 'visit' && typeof index === 'number') {
       // Highlight currently visiting node
       drawTree(array, [index], 'active');
-    } else if (type === 'found') {
+    } else if (type === 'found' && typeof index === 'number') {
       // Highlight found target
       drawTree(array, [index], 'found');
       alert(`Found target ${value} at position ${index}!`);
@@ -172,10 +241,10 @@ async function runBFS() {
     } else if (type === 'complete') {
       // Show completion
       drawTree(array);
-      const traversalText = `BFS Traversal: ${traversal.join(' → ')}`;
-      if (targetNum !== null && !found) {
+      const traversalText = `BFS Traversal: ${traversal ? traversal.join(' → ') : ''}`;
+      if (targetNum !== undefined && !found) {
         alert(`${traversalText}\nTarget ${targetNum} not found in tree!`);
-      } else if (targetNum === null) {
+      } else if (targetNum === undefined) {
         alert(`${traversalText}\nBFS traversal complete!`);
       }
       break;
@@ -187,9 +256,19 @@ async function runBFS() {
 }
 
 async function runDFS() {
-  const input = document.getElementById('input').value;
-  const target = document.getElementById('dfsTarget').value;
-  const order = document.getElementById('dfsOrder').value || 'preorder';
+  showColorGuide('traversal'); // Show traversal color guide
+  const inputElement = document.getElementById('input');
+  const targetElement = document.getElementById('dfsTarget');
+  const orderElement = document.getElementById('dfsOrder');
+
+  if (!inputElement || !targetElement || !orderElement) {
+    alert('Required elements not found');
+    return;
+  }
+
+  const input = (inputElement).value;
+  const target = (targetElement).value;
+  const order = (orderElement).value || 'preorder';
   let array = input.split(',').map(Number);
 
   // Show initial tree
@@ -204,24 +283,24 @@ async function runDFS() {
   while (!step.done) {
     const { type, index, indices, value, level, traversal, found } = step.value;
 
-    if (type === 'stack') {
+    if (type === 'stack' && indices) {
       // Highlight nodes currently in stack (path from root to current)
       drawTree(array, indices, 'stack');
-    } else if (type === 'visit') {
+    } else if (type === 'visit' && typeof index === 'number') {
       // Highlight currently visiting node
       drawTree(array, [index], 'active');
-    } else if (type === 'found') {
+    } else if (type === 'found' && typeof index === 'number') {
       // Highlight found target
       drawTree(array, [index], 'found');
       alert(`Found target ${value} at position ${index} using ${order} DFS!`);
       break;
-    } else if (type === 'backtrack') {
+    } else if (type === 'backtrack' && typeof index === 'number') {
       // Show backtracking with a different color
       drawTree(array, [index], 'backtrack');
     } else if (type === 'complete') {
       // Show completion
       drawTree(array);
-      const traversalText = `DFS (${order}) Traversal: ${traversal.join(' → ')}`;
+      const traversalText = `DFS (${order}) Traversal: ${traversal ? traversal.join(' → ') : ''}`;
       if (targetNum !== undefined && !found) {
         alert(`${traversalText}\nTarget ${targetNum} not found in tree!`);
       } else if (targetNum === undefined) {
@@ -235,7 +314,9 @@ async function runDFS() {
   }
 }
 
+// Make functions available globally - bypass TypeScript by casting to any
 window.runSort = runSort;
+window.runSelectionSort = runSelectionSort;
 window.runBinarySearch = runBinarySearch;
 window.runBFS = runBFS;
 window.runDFS = runDFS;
@@ -243,12 +324,17 @@ window.runDFS = runDFS;
 document.addEventListener('DOMContentLoaded', () => {
   // Ensure the DOM is fully loaded before running the script
   const runButton = document.getElementById('runButton');
+  const selectionSortButton = document.getElementById('selectionSortButton');
   const binarySearchButton = document.getElementById('binarySearchButton');
   const bfsButton = document.getElementById('bfsButton');
   const dfsButton = document.getElementById('dfsButton');
 
   if (runButton) {
     runButton.addEventListener('click', runSort);
+  }
+
+  if (selectionSortButton) {
+    selectionSortButton.addEventListener('click', runSelectionSort);
   }
 
   if (binarySearchButton) {

@@ -20,6 +20,49 @@ export function* bubbleSort(arr) {
 }
 
 /**
+ * Selection Sort generator.
+ * Yields objects of the form:
+ *   { type: 'compare', indices: [current, min] }
+ *   { type: 'newMin', indices: [min], minIndex: number }
+ *   { type: 'swap', indices: [i, minIndex], array: [current array state] }
+ *   { type: 'sorted', indices: [i] } (when position i is finalized)
+ * @param {number[]} arr - Array to sort
+ * @yields {{type: string, indices: number[], array?: number[], minIndex?: number}}
+ */
+export function* selectionSort(arr) {
+  const steps = [...arr];
+
+  for (let i = 0; i < steps.length - 1; i++) {
+    let minIndex = i;
+
+    // Highlight the current position being filled
+    yield { type: 'sorting', indices: [i] };
+
+    // Find minimum element in remaining unsorted array
+    for (let j = i + 1; j < steps.length; j++) {
+      yield { type: 'compare', indices: [j, minIndex] };
+
+      if (steps[j] < steps[minIndex]) {
+        minIndex = j;
+        yield { type: 'newMin', indices: [minIndex], minIndex };
+      }
+    }
+
+    // Swap if minimum is not at current position
+    if (minIndex !== i) {
+      [steps[i], steps[minIndex]] = [steps[minIndex], steps[i]];
+      yield { type: 'swap', indices: [i, minIndex], array: [...steps] };
+    }
+
+    // Mark position as sorted
+    yield { type: 'sorted', indices: [i] };
+  }
+
+  // Mark the last element as sorted too
+  yield { type: 'sorted', indices: [steps.length - 1] };
+}
+
+/**
  * Binary Search generator.
  * Requires a sorted array to work properly.
  * Yields objects of the form:
