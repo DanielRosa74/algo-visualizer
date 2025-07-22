@@ -1,4 +1,4 @@
-import { bubbleSort, binarySearch } from '../algorithms/sorting.js';
+import { bubbleSort, binarySearch, breadthFirstSearch } from '../algorithms/sorting.js';
 
 /**
  * Draws bars for the given data array.
@@ -9,6 +9,7 @@ import { bubbleSort, binarySearch } from '../algorithms/sorting.js';
 function drawBars(data, highlight = [], highlightType = 'active') {
   const container = document.getElementById('visualizer');
   container.innerHTML = '';
+  container.className = 'bars-mode';
   if (!Array.isArray(data)) return; // Prevent TypeError if data is undefined
   data.forEach((value, i) => {
     const bar = document.createElement('div');
@@ -20,6 +21,58 @@ function drawBars(data, highlight = [], highlightType = 'active') {
     }
     container.appendChild(bar);
   });
+}
+
+/**
+ * Draws a binary tree visualization.
+ * @param {number[]} data - Array representing tree in level-order.
+ * @param {number[]} [highlight=[]] - Indices to highlight.
+ * @param {string} [highlightType='active'] - Type of highlight.
+ */
+function drawTree(data, highlight = [], highlightType = 'active') {
+  const container = document.getElementById('visualizer');
+  container.innerHTML = '';
+  container.className = 'tree-mode';
+
+  if (!Array.isArray(data) || data.length === 0) return;
+
+  // Calculate tree levels
+  const levels = Math.ceil(Math.log2(data.length + 1));
+  const treeDiv = document.createElement('div');
+  treeDiv.className = 'tree';
+
+  for (let level = 0; level < levels; level++) {
+    const levelDiv = document.createElement('div');
+    levelDiv.className = 'tree-level';
+    levelDiv.style.marginBottom = '40px';
+
+    const startIndex = Math.pow(2, level) - 1;
+    const endIndex = Math.min(startIndex + Math.pow(2, level), data.length);
+
+    for (let i = startIndex; i < endIndex; i++) {
+      if (data[i] !== null && data[i] !== undefined) {
+        const node = document.createElement('div');
+        node.className = 'tree-node';
+        node.textContent = data[i];
+        node.setAttribute('data-index', i);
+
+        if (highlight.includes(i)) {
+          node.classList.add(highlightType);
+        }
+
+        levelDiv.appendChild(node);
+      } else {
+        // Empty placeholder for null nodes
+        const placeholder = document.createElement('div');
+        placeholder.className = 'tree-node empty';
+        levelDiv.appendChild(placeholder);
+      }
+    }
+
+    treeDiv.appendChild(levelDiv);
+  }
+
+  container.appendChild(treeDiv);
 }
 
 async function runSort() {
@@ -88,13 +141,60 @@ async function runBinarySearch() {
   }
 }
 
+async function runBFS() {
+  const input = document.getElementById('input').value;
+  const target = document.getElementById('bfsTarget').value;
+  let array = input.split(',').map(Number);
+
+  // Show initial tree
+  drawTree(array);
+
+  await new Promise(r => setTimeout(r, 1000)); // Pause before starting BFS
+
+  const targetNum = target ? parseInt(target) : null;
+  const gen = breadthFirstSearch(array, targetNum);
+  let step = gen.next();
+
+  while (!step.done) {
+    const { type, index, indices, value, level, traversal, found } = step.value;
+
+    if (type === 'queue') {
+      // Highlight nodes currently in queue
+      drawTree(array, indices, 'queue');
+    } else if (type === 'visit') {
+      // Highlight currently visiting node
+      drawTree(array, [index], 'active');
+    } else if (type === 'found') {
+      // Highlight found target
+      drawTree(array, [index], 'found');
+      alert(`Found target ${value} at position ${index}!`);
+      break;
+    } else if (type === 'complete') {
+      // Show completion
+      drawTree(array);
+      const traversalText = `BFS Traversal: ${traversal.join(' → ')}`;
+      if (targetNum !== null && !found) {
+        alert(`${traversalText}\nTarget ${targetNum} not found in tree!`);
+      } else if (targetNum === null) {
+        alert(`${traversalText}\nBFS traversal complete!`);
+      }
+      break;
+    }
+
+    await new Promise(r => setTimeout(r, 1000));
+    step = gen.next();
+  }
+}
+
 window.runSort = runSort;
 window.runBinarySearch = runBinarySearch;
+window.runBFS = runBFS;
 
 document.addEventListener('DOMContentLoaded', () => {
   // Ensure the DOM is fully loaded before running the script
   const runButton = document.getElementById('runButton');
   const binarySearchButton = document.getElementById('binarySearchButton');
+  const bfsButton = document.getElementById('bfsButton');
 
   if (runButton) {
     runButton.addEventListener('click', runSort);
@@ -102,5 +202,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (binarySearchButton) {
     binarySearchButton.addEventListener('click', runBinarySearch);
+  }
+
+  if (bfsButton) {
+    bfsButton.addEventListener('click', runBFS);
   }
 });
