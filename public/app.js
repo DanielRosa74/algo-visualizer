@@ -296,25 +296,38 @@ async function runUniversalSearch() {
 
   let gen;
   switch (algorithm) {
-    case 'binary':
-      // Sort the array first for binary search
+    case 'binary': {
       array.sort((a, b) => a - b);
       drawBars(array); // Show sorted array
       await new Promise(r => setTimeout(r, 1000));
       gen = binarySearch(array, target);
       break;
-    case 'linear':
+    }
+    case 'linear': {
       gen = linearSearch(array, target);
       break;
-    case 'jump':
+    }
+    case 'jump': {
+      array.sort((a, b) => a - b);
+      drawBars(array);
+      await new Promise(r => setTimeout(r, 1000));
       gen = jumpSearch(array, target);
       break;
-    case 'interpolation':
+    }
+    case 'interpolation': {
+      array.sort((a, b) => a - b);
+      drawBars(array);
+      await new Promise(r => setTimeout(r, 1000));
       gen = interpolationSearch(array, target);
       break;
-    case 'exponential':
+    }
+    case 'exponential': {
+      array.sort((a, b) => a - b);
+      drawBars(array);
+      await new Promise(r => setTimeout(r, 1000));
       gen = exponentialSearch(array, target);
       break;
+    }
     default:
       alert('Unknown search algorithm selected');
       return;
