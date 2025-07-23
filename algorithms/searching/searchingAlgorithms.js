@@ -73,27 +73,23 @@ export function* linearSearch(arr, target) {
  * @yields {{type: string, indices: number[], target: number, found?: boolean}}
  */
 export function* jumpSearch(arr, target) {
-  // Check if array is sorted
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i] < arr[i - 1]) {
-      alert('Jump Search requires a sorted array. Please sort the array first.');
-      yield { type: 'error', message: 'Array must be sorted for Jump Search.' };
-      return -1;
-    }
-  }
+  // Pre-sort the array and keep track of original indices
+  const arrWithIndex = arr.map((value, idx) => ({ value, idx }));
+  arrWithIndex.sort((a, b) => a.value - b.value);
+  const sortedArr = arrWithIndex.map(obj => obj.value);
   if (!Array.isArray(arr) || arr.length === 0) {
     yield { type: 'error', message: 'Array must not be empty.' };
     return -1;
   }
 
-  const n = arr.length;
+  const n = sortedArr.length;
   const stepSize = Math.floor(Math.sqrt(n));
   let prev = 0;
   let step = stepSize;
 
   // Find the block where the target may be present
-  while (prev < n && arr[Math.min(step, n) - 1] < target) {
-    yield { type: 'compare', indices: [Math.min(step, n) - 1], target, found: false };
+  while (prev < n && sortedArr[Math.min(step, n) - 1] < target) {
+    yield { type: 'compare', indices: [arrWithIndex[Math.min(step, n) - 1].idx], target, found: false };
     prev = step;
     step += stepSize;
     if (prev >= n) {
@@ -104,10 +100,10 @@ export function* jumpSearch(arr, target) {
 
   // Linear search within the block
   for (let i = prev; i < Math.min(step, n); i++) {
-    yield { type: 'compare', indices: [i], target, found: false };
-    if (arr[i] === target) {
-      yield { type: 'found', indices: [i], target };
-      return i;
+    yield { type: 'compare', indices: [arrWithIndex[i].idx], target, found: false };
+    if (sortedArr[i] === target) {
+      yield { type: 'found', indices: [arrWithIndex[i].idx], target };
+      return arrWithIndex[i].idx;
     }
   }
 
@@ -127,35 +123,31 @@ export function* jumpSearch(arr, target) {
  * @yields {{type: string, indices: number[], target: number, found?: boolean}}
  */
 export function* interpolationSearch(arr, target) {
-  // Check if array is sorted
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i] < arr[i - 1]) {
-      alert('Interpolation Search requires a sorted array. Please sort the array first.');
-      yield { type: 'error', message: 'Array must be sorted for Interpolation Search.' };
-      return -1;
-    }
-  }
+  // Pre-sort the array and keep track of original indices
+  const arrWithIndex = arr.map((value, idx) => ({ value, idx }));
+  arrWithIndex.sort((a, b) => a.value - b.value);
+  const sortedArr = arrWithIndex.map(obj => obj.value);
   if (!Array.isArray(arr) || arr.length === 0) {
     yield { type: 'error', message: 'Array must not be empty.' };
     return -1;
   }
 
   let low = 0;
-  let high = arr.length - 1;
+  let high = sortedArr.length - 1;
   let lastPos = -1;
 
-  while (low <= high && target >= arr[low] && target <= arr[high]) {
-    if (arr[high] === arr[low]) {
-      if (arr[low] === target) {
-        yield { type: 'found', indices: [low], target };
-        return low;
+  while (low <= high && target >= sortedArr[low] && target <= sortedArr[high]) {
+    if (sortedArr[high] === sortedArr[low]) {
+      if (sortedArr[low] === target) {
+        yield { type: 'found', indices: [arrWithIndex[low].idx], target };
+        return arrWithIndex[low].idx;
       } else {
         yield { type: 'not-found', target };
         return -1;
       }
     }
 
-    const pos = low + Math.floor(((high - low) / (arr[high] - arr[low])) * (target - arr[low]));
+    const pos = low + Math.floor(((high - low) / (sortedArr[high] - sortedArr[low])) * (target - sortedArr[low]));
 
     // Prevent infinite loop if pos does not change
     if (pos === lastPos) {
@@ -169,14 +161,14 @@ export function* interpolationSearch(arr, target) {
       return -1;
     }
 
-    yield { type: 'compare', indices: [pos], target, found: false };
+    yield { type: 'compare', indices: [arrWithIndex[pos].idx], target, found: false };
 
-    if (arr[pos] === target) {
-      yield { type: 'found', indices: [pos], target };
-      return pos;
+    if (sortedArr[pos] === target) {
+      yield { type: 'found', indices: [arrWithIndex[pos].idx], target };
+      return arrWithIndex[pos].idx;
     }
 
-    if (arr[pos] < target) {
+    if (sortedArr[pos] < target) {
       low = pos + 1;
     } else {
       high = pos - 1;
@@ -199,39 +191,35 @@ export function* interpolationSearch(arr, target) {
  * @yields {{type: string, indices: number[], target: number, found?: boolean}}
  */
 export function* exponentialSearch(arr, target) {
-  // Check if array is sorted
-  for (let i = 1; i < arr.length; i++) {
-    if (arr[i] < arr[i - 1]) {
-      alert('Exponential Search requires a sorted array. Please sort the array first.');
-      yield { type: 'error', message: 'Array must be sorted for Exponential Search.' };
-      return -1;
-    }
-  }
+  // Pre-sort the array and keep track of original indices
+  const arrWithIndex = arr.map((value, idx) => ({ value, idx }));
+  arrWithIndex.sort((a, b) => a.value - b.value);
+  const sortedArr = arrWithIndex.map(obj => obj.value);
   if (!Array.isArray(arr) || arr.length === 0) {
     yield { type: 'error', message: 'Array must not be empty.' };
     return -1;
   }
 
-  if (arr[0] === target) {
-    yield { type: 'found', indices: [0], target };
-    return 0;
+  if (sortedArr[0] === target) {
+    yield { type: 'found', indices: [arrWithIndex[0].idx], target };
+    return arrWithIndex[0].idx;
   }
 
   let i = 1;
   // Find range for binary search by repeated doubling
-  while (i < arr.length && arr[i] < target) {
-    yield { type: 'compare', indices: [i], target, found: false };
+  while (i < sortedArr.length && sortedArr[i] < target) {
+    yield { type: 'compare', indices: [arrWithIndex[i].idx], target, found: false };
     i *= 2;
   }
 
   const low = Math.floor(i / 2);
-  const high = Math.min(i, arr.length - 1);
+  const high = Math.min(i, sortedArr.length - 1);
 
   for (let j = low; j <= high; j++) {
-    yield { type: 'compare', indices: [j], target, found: false };
-    if (arr[j] === target) {
-      yield { type: 'found', indices: [j], target };
-      return j;
+    yield { type: 'compare', indices: [arrWithIndex[j].idx], target, found: false };
+    if (sortedArr[j] === target) {
+      yield { type: 'found', indices: [arrWithIndex[j].idx], target };
+      return arrWithIndex[j].idx;
     }
   }
 
