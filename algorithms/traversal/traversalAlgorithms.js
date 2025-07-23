@@ -1,152 +1,5 @@
 /**
- * Bubble Sort generator.
- * Yields objects of the form:
- *   { type: 'compare', indices: [i, j] }
- *   { type: 'swap', indices: [i, j], array: [current array state] }
- * @param {number[]} arr - Array to sort
- * @yields {{type: string, indices: number[], array?: number[]}}
- */
-export function* bubbleSort(arr) {
-  const steps = [...arr];
-  for (let i = 0; i < steps.length; i++) {
-    for (let j = 0; j < steps.length - i - 1; j++) {
-      yield { type: 'compare', indices: [j, j + 1] };
-      if (steps[j] > steps[j + 1]) {
-        [steps[j], steps[j + 1]] = [steps[j + 1], steps[j]];
-        yield { type: 'swap', indices: [j, j + 1], array: [...steps] };
-      }
-    }
-  }
-}
-
-/**
- * Selection Sort generator.
- * Yields objects of the form:
- *   { type: 'compare', indices: [current, min] }
- *   { type: 'newMin', indices: [min], minIndex: number }
- *   { type: 'swap', indices: [i, minIndex], array: [current array state] }
- *   { type: 'sorted', indices: [i] } (when position i is finalized)
- * @param {number[]} arr - Array to sort
- * @yields {{type: string, indices: number[], array?: number[], minIndex?: number}}
- */
-export function* selectionSort(arr) {
-  const steps = [...arr];
-
-  for (let i = 0; i < steps.length - 1; i++) {
-    let minIndex = i;
-
-    // Highlight the current position being filled
-    yield { type: 'sorting', indices: [i] };
-
-    // Find minimum element in remaining unsorted array
-    for (let j = i + 1; j < steps.length; j++) {
-      yield { type: 'compare', indices: [j, minIndex] };
-
-      if (steps[j] < steps[minIndex]) {
-        minIndex = j;
-        yield { type: 'newMin', indices: [minIndex], minIndex };
-      }
-    }
-
-    // Swap if minimum is not at current position
-    if (minIndex !== i) {
-      [steps[i], steps[minIndex]] = [steps[minIndex], steps[i]];
-      yield { type: 'swap', indices: [i, minIndex], array: [...steps] };
-    }
-
-    // Mark position as sorted
-    yield { type: 'sorted', indices: [i] };
-  }
-
-  // Mark the last element as sorted too
-  yield { type: 'sorted', indices: [steps.length - 1] };
-}
-
-/**
- * Insertion Sort generator.
- * Yields objects of the form:
- *   { type: 'current', indices: [current] } - Current element being inserted
- *   { type: 'compare', indices: [j, j+1] } - Comparing elements
- *   { type: 'shift', indices: [j], array: [current array state] } - Shifting element right
- *   { type: 'insert', indices: [position], array: [current array state] } - Inserting element
- *   { type: 'sorted', indices: [0, i] } - Elements 0 to i are sorted
- * @param {number[]} arr - Array to sort
- * @yields {{type: string, indices: number[], array?: number[]}}
- */
-export function* insertionSort(arr) {
-  const steps = [...arr];
-
-  for (let i = 1; i < steps.length; i++) {
-    const current = steps[i];
-    let j = i - 1;
-
-    // Highlight the current element being inserted
-    yield { type: 'current', indices: [i] };
-
-    // Move elements greater than current one position ahead
-    while (j >= 0 && steps[j] > current) {
-      // Show comparison
-      yield { type: 'compare', indices: [j, j + 1] };
-
-      // Shift element to the right
-      steps[j + 1] = steps[j];
-      yield { type: 'shift', indices: [j + 1], array: [...steps] };
-
-      j--;
-    }
-
-    // Insert the current element at its correct position
-    steps[j + 1] = current;
-    yield { type: 'insert', indices: [j + 1], array: [...steps] };
-
-    // Show that elements from 0 to i are now sorted
-    yield { type: 'sorted', indices: Array.from({ length: i + 1 }, (_, k) => k) };
-  }
-}
-
-/**
- * Binary Search generator.
- * Requires a sorted array to work properly.
- * Yields objects of the form:
- *   { type: 'compare', indices: [mid], target: number, found: boolean }
- *   { type: 'range', indices: [left, right], target: number }
- *   { type: 'found', indices: [foundIndex], target: number } (if found)
- *   { type: 'not-found', target: number } (if not found)
- * @param {number[]} arr - Sorted array to search in
- * @param {number} target - Value to search for
- * @yields {{type: string, indices: number[], target: number, found?: boolean}}
- */
-export function* binarySearch(arr, target) {
-  let left = 0;
-  let right = arr.length - 1;
-
-  while (left <= right) {
-    // Show current search range
-    yield { type: 'range', indices: [left, right], target };
-
-    const mid = Math.floor((left + right) / 2);
-
-    // Show comparison at mid point
-    yield { type: 'compare', indices: [mid], target, found: false };
-
-    if (arr[mid] === target) {
-      // Found the target
-      yield { type: 'found', indices: [mid], target };
-      return mid;
-    } else if (arr[mid] < target) {
-      left = mid + 1;
-    } else {
-      right = mid - 1;
-    }
-  }
-
-  // Target not found
-  yield { type: 'not-found', target };
-  return -1;
-}
-
-/**
- * Tree Node class for BFS visualization
+ * Tree Node class for tree traversal visualization
  */
 class TreeNode {
   constructor(value) {
@@ -172,6 +25,7 @@ function createBinaryTree(arr) {
 
   while (queue.length > 0 && i < arr.length) {
     const node = queue.shift();
+    if (!node) continue;
 
     // Add left child
     if (i < arr.length && arr[i] !== null && arr[i] !== undefined) {
@@ -204,7 +58,7 @@ function createBinaryTree(arr) {
  * @param {number} [target] - Optional target value to search for
  * @yields {{type: string, index?: number, indices?: number[], value?: number, level?: number, traversal?: number[], found?: boolean}}
  */
-export function* breadthFirstSearch(arr, target = null) {
+export function* breadthFirstSearch(arr, target) {
   if (!arr || arr.length === 0) return;
 
   const root = createBinaryTree(arr);
@@ -219,14 +73,17 @@ export function* breadthFirstSearch(arr, target = null) {
     const queueIndices = queue.map(item => item.node.index);
     yield { type: 'queue', indices: queueIndices };
 
-    const { node, level } = queue.shift();
+    const current = queue.shift();
+    if (!current) continue;
+
+    const { node, level } = current;
 
     // Visit current node
     yield { type: 'visit', index: node.index, value: node.value, level };
     traversal.push(node.value);
 
     // Check if this is the target we're searching for
-    if (target !== null && node.value === target) {
+    if (target !== null && target !== undefined && node.value === target) {
       yield { type: 'found', index: node.index, value: node.value };
       found = true;
     }
@@ -241,7 +98,7 @@ export function* breadthFirstSearch(arr, target = null) {
   }
 
   // Show final traversal
-  yield { type: 'complete', traversal, found: target !== null ? found : undefined };
+  yield { type: 'complete', traversal, found: target !== null && target !== undefined ? found : undefined };
 }
 
 /**
