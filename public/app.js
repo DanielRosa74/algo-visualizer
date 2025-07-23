@@ -1,4 +1,4 @@
-import { bubbleSort, selectionSort, insertionSort, binarySearch, breadthFirstSearch, depthFirstSearch } from '../algorithms/sorting.js';
+import { bubbleSort, selectionSort, insertionSort, mergeSort, binarySearch, breadthFirstSearch, depthFirstSearch } from '../algorithms/sorting.js';
 
 /**
  * Shows the appropriate color guide for the given algorithm type
@@ -211,6 +211,9 @@ async function runUniversalSort() {
     case 'insertion':
       gen = insertionSort(array);
       break;
+    case 'merge':
+      gen = mergeSort(array);
+      break;
     default:
       alert('Unknown sorting algorithm selected');
       return;
@@ -242,9 +245,31 @@ async function runUniversalSort() {
     } else if (type === 'insert') {
       currentArray = [...arrSnapshot];
       drawBars(currentArray, indices, 'active');
+    } else if (type === 'divide') {
+      // Show division of array - highlight the range being divided
+      drawBars(currentArray, indices, 'range');
+    } else if (type === 'merge') {
+      // Show merge operation starting - highlight merge range
+      drawBars(currentArray, indices, 'active');
+    } else if (type === 'place') {
+      // Update array and highlight placed element
+      currentArray = [...arrSnapshot];
+      drawBars(currentArray, indices, 'found');
+    } else if (type === 'copy') {
+      // Update array and highlight copied element
+      currentArray = [...arrSnapshot];
+      drawBars(currentArray, indices, 'newMin');
+    } else if (type === 'complete') {
+      // Show completed merge range
+      currentArray = [...arrSnapshot];
+      drawBars(currentArray, indices, 'sorted');
     }
 
-    await new Promise(r => setTimeout(r, algorithm === 'insertion' ? 600 : algorithm === 'selection' ? 400 : 300));
+    await new Promise(r => setTimeout(r,
+      algorithm === 'insertion' ? 600 :
+      algorithm === 'selection' ? 400 :
+      algorithm === 'merge' ? 500 :
+      300));
     step = gen.next();
   }
   drawBars(currentArray, [], 'complete');
