@@ -1,5 +1,5 @@
 import { bubbleSort, selectionSort, insertionSort, mergeSort } from '../algorithms/sorting/sortingAlgorithms.js';
-import { binarySearch } from '../algorithms/searching/searchingAlgorithms.js';
+import { binarySearch, linearSearch, jumpSearch, interpolationSearch, exponentialSearch } from '../algorithms/searching/searchingAlgorithms.js';
 import { breadthFirstSearch, depthFirstSearch } from '../algorithms/traversal/traversalAlgorithms.js';
 
 /**
@@ -303,6 +303,18 @@ async function runUniversalSearch() {
       await new Promise(r => setTimeout(r, 1000));
       gen = binarySearch(array, target);
       break;
+    case 'linear':
+      gen = linearSearch(array, target);
+      break;
+    case 'jump':
+      gen = jumpSearch(array, target);
+      break;
+    case 'interpolation':
+      gen = interpolationSearch(array, target);
+      break;
+    case 'exponential':
+      gen = exponentialSearch(array, target);
+      break;
     default:
       alert('Unknown search algorithm selected');
       return;
@@ -333,6 +345,54 @@ async function runUniversalSearch() {
     await new Promise(r => setTimeout(r, 800));
     step = gen.next();
   }
+}
+
+function displaySearchResult(result) {
+  const resultContainer = document.getElementById('result');
+  if (result.type === 'found') {
+    resultContainer.textContent = `Item found at index ${result.indices[0]}.`;
+  } else if (result.type === 'not-found') {
+    resultContainer.textContent = 'Item not found.';
+  } else if (result.type === 'error') {
+    resultContainer.textContent = result.message;
+  }
+}
+
+async function runSearch() {
+  const input = document.getElementById('input').value;
+  const target = Number(document.getElementById('target').value);
+  const algorithm = document.getElementById('searchAlgorithm').value;
+  const array = input.split(',').map(Number);
+
+  let generator;
+  switch (algorithm) {
+    case 'binary':
+      generator = binarySearch(array, target);
+      break;
+    case 'linear':
+      generator = linearSearch(array, target);
+      break;
+    case 'jump':
+      generator = jumpSearch(array, target);
+      break;
+    case 'interpolation':
+      generator = interpolationSearch(array, target);
+      break;
+    case 'exponential':
+      generator = exponentialSearch(array, target);
+      break;
+    default:
+      console.error('Unknown algorithm');
+      return;
+  }
+
+  let step = generator.next();
+  while (!step.done) {
+    displaySearchResult(step.value);
+    await new Promise(r => setTimeout(r, 300));
+    step = generator.next();
+  }
+  displaySearchResult(step.value);
 }
 
 async function runBinarySearch() {
