@@ -1,4 +1,6 @@
-import { bubbleSort, selectionSort, insertionSort, mergeSort, binarySearch, breadthFirstSearch, depthFirstSearch } from '../algorithms/sorting.js';
+import { bubbleSort, selectionSort, insertionSort, mergeSort } from '../algorithms/sorting/sortingAlgorithms.js';
+import { binarySearch } from '../algorithms/searching/searchingAlgorithms.js';
+import { breadthFirstSearch, depthFirstSearch } from '../algorithms/traversal/traversalAlgorithms.js';
 
 /**
  * Shows the appropriate color guide for the given algorithm type
