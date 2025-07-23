@@ -105,6 +105,102 @@ export function* insertionSort(arr) {
 }
 
 /**
+ * Merge Sort generator.
+ * Yields objects of the form:
+ *   { type: 'divide', indices: [left, right] } - Showing division of array
+ *   { type: 'merge', indices: [left, mid, right] } - Starting merge operation
+ *   { type: 'compare', indices: [i, j] } - Comparing elements during merge
+ *   { type: 'place', indices: [position], array: [current array state] } - Placing element in merged position
+ *   { type: 'copy', indices: [position], array: [current array state] } - Copying remaining elements
+ *   { type: 'complete', indices: [left, right], array: [current array state] } - Merge complete for this range
+ * @param {number[]} arr - Array to sort
+ * @yields {{type: string, indices: number[], array?: number[]}}
+ */
+export function* mergeSort(arr) {
+  const steps = [...arr];
+
+  function* mergeSortHelper(left, right) {
+    if (left >= right) return;
+
+    // Show division
+    yield { type: 'divide', indices: [left, right] };
+
+    const mid = Math.floor((left + right) / 2);
+
+    // Recursively sort left half
+    yield* mergeSortHelper(left, mid);
+
+    // Recursively sort right half
+    yield* mergeSortHelper(mid + 1, right);
+
+    // Merge the sorted halves
+    yield* merge(left, mid, right);
+  }
+
+  function* merge(left, mid, right) {
+    // Show merge operation starting
+    yield { type: 'merge', indices: [left, mid, right] };
+
+    // Create temporary arrays for left and right subarrays
+    const leftArr = [];
+    const rightArr = [];
+
+    // Copy data to temp arrays
+    for (let i = left; i <= mid; i++) {
+      leftArr.push(steps[i]);
+    }
+    for (let j = mid + 1; j <= right; j++) {
+      rightArr.push(steps[j]);
+    }
+
+    let i = 0; // Initial index of left subarray
+    let j = 0; // Initial index of right subarray
+    let k = left; // Initial index of merged subarray
+
+    // Merge the temp arrays back into steps[left..right]
+    while (i < leftArr.length && j < rightArr.length) {
+      // Show comparison
+      const leftOriginalIndex = left + i;
+      const rightOriginalIndex = mid + 1 + j;
+      yield { type: 'compare', indices: [leftOriginalIndex, rightOriginalIndex] };
+
+      if (leftArr[i] <= rightArr[j]) {
+        steps[k] = leftArr[i];
+        yield { type: 'place', indices: [k], array: [...steps] };
+        i++;
+      } else {
+        steps[k] = rightArr[j];
+        yield { type: 'place', indices: [k], array: [...steps] };
+        j++;
+      }
+      k++;
+    }
+
+    // Copy remaining elements of leftArr[], if any
+    while (i < leftArr.length) {
+      steps[k] = leftArr[i];
+      yield { type: 'copy', indices: [k], array: [...steps] };
+      i++;
+      k++;
+    }
+
+    // Copy remaining elements of rightArr[], if any
+    while (j < rightArr.length) {
+      steps[k] = rightArr[j];
+      yield { type: 'copy', indices: [k], array: [...steps] };
+      j++;
+      k++;
+    }
+
+    // Show completion of this merge
+    yield { type: 'complete', indices: [left, right], array: [...steps] };
+  }
+
+  // Start the merge sort process
+  yield* mergeSortHelper(0, steps.length - 1);
+}
+
+/**
  * Binary Search generator.
  * Requires a sorted array to work properly.
  * Yields objects of the form:
